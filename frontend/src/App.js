@@ -1,96 +1,105 @@
-import { useState } from "react";
-import axios from "axios";
-import "./App.css";
+import React, { useState } from "react";
 
 function App() {
   const [file, setFile] = useState(null);
+  const [message, setMessage] = useState("");
   const [fileId, setFileId] = useState("");
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  const API_URL =
-    "https://brain-tumor-8wlk.onrender.com";
+  // =========================
+  // File Select
+  // =========================
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
-  const uploadMRI = async () => {
-    if (!file) return alert("Select file");
+  // =========================
+  // Upload MRI
+  // =========================
+  const handleUpload = async () => {
+    if (!file) {
+      alert("Please select MRI file");
+      return;
+    }
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", file);   // IMPORTANT
 
     try {
-      setLoading(true);
-
-      const res = await axios.post(
-        `${API_URL}/upload-mri`,
-        formData
+      const response = await fetch(
+        "http://127.0.0.1:8000/upload-mri",
+        {
+          method: "POST",
+          body: formData,
+        }
       );
 
-      setFileId(res.data.file_id);
-      alert("Uploaded");
-    } catch {
-      alert("Upload failed");
-    } finally {
-      setLoading(false);
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+
+      setMessage(data.message);
+      setFileId(data.file_id);
+
+    } catch (error) {
+      console.error(error);
+      setMessage("Upload failed");
     }
   };
 
-  const segmentMRI = async () => {
-    if (!fileId) return alert("Upload first");
+  // =========================
+  // Segment MRI
+  // =========================
+  const handleSegment = async () => {
+
+    if (!fileId) {
+      alert("Upload MRI first");
+      return;
+    }
 
     try {
-      setLoading(true);
-
-      const res = await axios.post(
-        `${API_URL}/segment/${fileId}`
+      const response = await fetch(
+        `http://127.0.0.1:8000/segment/${fileId}`,
+        {
+          method: "POST",
+        }
       );
 
-      setResult(res.data);
-    } catch {
-      alert("Segmentation failed");
-    } finally {
-      setLoading(false);
+      const data = await response.json();
+
+      setMessage(
+        `Result: ${data.classification}`
+      );
+
+    } catch (error) {
+      console.error(error);
+      setMessage("Segmentation failed");
     }
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>🧠 Brain Tumor Segmentation</h1>
+    <div style={{ padding: "30px" }}>
+      <h2>Brain Tumor MRI Upload</h2>
 
       <input
         type="file"
-        onChange={(e) =>
-          setFile(e.target.files[0])
-        }
+        onChange={handleFileChange}
       />
 
       <br /><br />
 
-      <button onClick={uploadMRI}>
+      <button onClick={handleUpload}>
         Upload MRI
       </button>
 
-      <button onClick={segmentMRI}>
-        Segment MRI
+      <br /><br />
+
+      <button onClick={handleSegment}>
+        Run Segmentation
       </button>
 
-      {loading && <p>Processing…</p>}
-
-      {result && (
-        <div>
-          <h3>Result</h3>
-          <p>Status: {result.status}</p>
-          <p>
-            Tumor:
-            {result.tumor_detected
-              ? " Yes"
-              : " No"}
-          </p>
-          <p>
-            Class:
-            {result.classification}
-          </p>
-        </div>
-      )}
+      <p>{message}</p>
     </div>
   );
 }

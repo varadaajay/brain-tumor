@@ -26,7 +26,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "https://your-backend-url/upload-mri",
+         "https://brain-tumor-ijn1.onrender.com/upload-mri",
         {
           method: "POST",
           body: formData,
@@ -60,7 +60,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/segment/${fileId}`,
+        `https://brain-tumor-ijn1.onrender.com/segment/${fileId}`,
         {
           method: "POST",
         }

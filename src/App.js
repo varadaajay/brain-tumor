@@ -1,13 +1,13 @@
 import { useState } from "react";
-import axios from "axios";
+import API from "./api";
 
 function App() {
   const [file, setFile] = useState(null);
   const [fileId, setFileId] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const API_URL = "https://brain-tumor-8wlk.onrender.com";
+
 
   const uploadMRI = async () => {
     if (!file) {
@@ -20,11 +20,9 @@ function App() {
 
     try {
       setLoading(true);
-      const res = await axios.post(
-        `${API_URL}/upload-mri`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const res = await API.post("/upload-mri", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setFileId(res.data.file_id);
       alert("MRI uploaded successfully");
     } catch (err) {
@@ -43,9 +41,7 @@ function App() {
 
     try {
       setLoading(true);
-      const res = await axios.post(
-        `${API_URL}/segment/${fileId}`
-      );
+      const res = await API.post(`/segment/${fileId}`);
       setResult(res.data);
     } catch (err) {
       alert("Segmentation failed");
@@ -59,7 +55,10 @@ function App() {
     <div style={{ padding: "40px", fontFamily: "Arial" }}>
       <h1>🧠 Brain Tumor Segmentation</h1>
 
-      <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files[0])}
+      />
       <br /><br />
 
       <button onClick={uploadMRI}>Upload MRI</button>

@@ -1,0 +1,26 @@
+.container {
+  padding: 40px;
+  font-family: Arial, sans-serif;
+}
+
+.buttons {
+  margin-top: 15px;
+}
+
+button {
+  padding: 8px 16px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.loading {
+  color: blue;
+  font-weight: bold;
+}
+
+.result {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  width: fit-content;
+}
